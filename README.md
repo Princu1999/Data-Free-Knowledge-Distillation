@@ -3,7 +3,7 @@
 
 This repository provides a production-ready, modular PyTorch implementation of data-free adversarial knowledge distillation: a pretrained ResNet-34 teacher supervises compact ResNet-18 student variants while a lightweight generator synthesizes training stimuli on the fly. The codebase separates concerns into clear modules (models, engine, utils, scripts), supports reproducible runs, and mirrors the original training dynamics (alternating student–generator updates) for faithful results.
 
-# Why this repo
+## Why this repo
 
 - **Data-free KD**: distill without access to original training data via generator-driven synthesis.
 
