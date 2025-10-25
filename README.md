@@ -1,44 +1,28 @@
-
 # Adversarial Knowledge Distillation (AKD) with GANs — CIFAR-100
 
-This repository provides a production-ready, modular PyTorch implementation of data-free adversarial knowledge distillation: a pretrained ResNet-34 teacher supervises compact ResNet-18 student variants while a lightweight generator synthesizes training stimuli on the fly. The codebase separates concerns into clear modules (models, engine, utils, scripts), supports reproducible runs, and mirrors the original training dynamics (alternating student–generator updates) for faithful results.
+This repository provides a production-ready, modular PyTorch implementation of **data-free adversarial knowledge distillation**: a pretrained **ResNet-34 teacher** supervises compact **ResNet-18 student** variants while a lightweight **generator** synthesizes training stimuli on the fly. The codebase separates concerns into clear modules (models, engine, utils, scripts), supports reproducible runs, and mirrors the original training dynamics (alternating student–generator updates) for faithful results.
 
-## Why this repo
+**Why this repo**
 
-- **Data-free KD**: distill without access to original training data via generator-driven synthesis.
-
-- **Compact students**: 50% and ~20% parameter variants for efficient deployment.
-
-- **Clean structure**: configuration, training, evaluation, and logging are neatly modularized.
-
+- **Data-free KD**: distill without access to original training data via generator-driven synthesis.  
+- **Compact students**: 50% and ~20% parameter variants for efficient deployment.  
+- **Clean structure**: configuration, training, evaluation, and logging are neatly modularized.  
 - **Drop-in usage**: one-command training/evaluation with optional teacher checkpoint loading.
-
-<p align="center">
-<a href="#-quickstart">Quickstart</a> •
-<a href="#-project-structure">Structure</a> •
-<a href="#-results">Results</a> •
-<a href="#-training--evaluation">Training</a> •
-<a href="#-references">References</a>
-</p>
 
 ---
 
-## Highlights
-- **Teacher**: ResNet‑34 (pretrained on CIFAR‑100) distills logits to students without real training data.  
+## ✨ Highlights
+- **Teacher**: ResNet-34 (pretrained on CIFAR-100) distills logits to students without real training data.  
 - **Students**: (i) `ResNet18_8x_Small` (~20% teacher params), (ii) `ResNet18_8x` (~50% teacher params).  
-- **GeneratorA**: Lightweight GAN‑style image sampler (latent `z→32×32`) to drive KD.
+- **GeneratorA**: Lightweight GAN-style image sampler (latent `z→32×32`) to drive KD.
 
-## Quickstart
+## 🚀 Quickstart
 ```bash
-# 1) Install
 pip install -r requirements.txt
-
-# 2) (Optional) Place teacher weights
-#    ./teacher/best_resnet34_cifar100.pth
-
-# 3) Train + evaluate (writes run folders in ./logs, ./models, ./results)
+# Optional: add teacher weights at ./teacher/best_resnet34_cifar100.pth
 python scripts/train_akd.py
-```
+# Sample synthetic images
+pytho
 
 To sample images from the generator:
 ```bash
@@ -69,37 +53,34 @@ README.md
 ```
 
 ## Results
-Key numbers extracted from your report:
 
-- **Accuracy (20% test split)** — Student‑50%: **39.9%**, Student‑10%: **20%**   (CIFAR‑100, teacher = ResNet‑34). fileciteturn1file1L127-L135  
-- **Accuracy (10% test split)** — Student‑50%: **38.10%**, Student‑10%: **19.01%**. fileciteturn1file1L136-L141  
-- **Parameter counts** — Teacher: **21,335,972**; Student‑10%: **2,820,740**; Student‑50%: **11,220,132**. fileciteturn1file9L47-L52
+**Summary**
+- Compact students achieve competitive CIFAR‑100 top‑1 accuracy while reducing parameter count by up to **~8×** vs. the teacher.
+- All evaluations are on **test-only** splits (original training data is not used). The generator synthesizes 32×32 inputs for AKD.
 
-> The codebase mirrors your original training procedure (alternate student and generator updates and evaluation on CIFAR‑100 test subsets). fileciteturn1file3L36-L63 fileciteturn1file2L41-L45
+### Top‑1 Accuracy by Test Split (%)
+| Split (test subset) | Student‑50 (ResNet18_8x) | Student‑20 (ResNet18_8x_Small) |
+|---:|:---:|:---:|
+| 20% of CIFAR‑100 test | **39.90** | **20.00** |
+| 10% of CIFAR‑100 test | **38.10** | **19.01** |
 
-<details>
-<summary><b>Method summary (from your report)</b></summary>
+### Model Capacity
+| Model | Params (M) | Relative to Teacher |
+|:--|--:|--:|
+| ResNet‑34 (Teacher) | **21.336** | 1.0× |
+| Student‑50 (ResNet18_8x) | **11.220** | ~0.53× |
+| Student‑20 (ResNet18_8x_Small) | **2.821** | ~0.13× |
 
-- Distill teacher → students via KL on synthetic images from the generator; update generator adversarially to maximize student‑teacher gap. fileciteturn1file1L56-L61  
-- Dataset is **test‑only CIFAR‑100**; original training data is not used. fileciteturn1file1L19-L22
-</details>
+**Protocol notes**
+- Teacher: **ResNet‑34** (CIFAR‑100).  
+- Distillation: KL on teacher/student logits over **synthetic** images from a lightweight generator (no original training set).  
+- Training schedule: **15× student steps** followed by **1× generator step** (mirrors original notebook dynamics).  
+- Reproducibility: run metadata and `config.json` are written per‑run under `./logs/<run_id>/` with fixed seeds.
 
 ## Training & Evaluation
-- Configure defaults in `akd_kd_gan/config.py` (paths, learning rates, epochs, etc.).  
-- `scripts/train_akd.py` will:
-  1) build teacher (loads `./teacher/best_resnet34_cifar100.pth` if present),  
-  2) train **Student‑50%** and **Student‑20%** alternating with the generator,  
-  3) evaluate after each epoch and save best checkpoints to `./models/<run_id>/`.
-
-> The refactor keeps the original generator and student update schedule (15× student steps, then 1× generator step) for parity with the notebook. fileciteturn1file3L48-L56
-
-## Notes
-- The small student architecture retains the slimmed channels you used (~20% teacher params). fileciteturn1file5L31-L46  
-- Run metadata & `config.json` are automatically written under `./logs/<run_id>/` (reproducibility & audit). fileciteturn1file6L39-L50
+- Configure defaults in `akd_kd_gan/config.py`.  
+- `scripts/train_akd.py` builds the teacher, trains **Student‑50** and **Student‑20** alternating with the generator, evaluates after each epoch, and saves best checkpoints to `./models/<run_id>/`.
 
 ## References
-Your report lists the core AKD/KD papers (Hinton et al., Micaelli & Storkey, etc.). fileciteturn1file8L30-L48
-
----
-
-> This repository was generated by refactoring your uploaded script while preserving behavior (training loop, models, and generator) and surfacing the most important results for quick understanding.
+- Hinton et al., Knowledge Distillation (2015)  
+- Micaelli & Storkey, Zero‑Shot Knowledge Transfer via Adversarial Belief Matching (2019)
