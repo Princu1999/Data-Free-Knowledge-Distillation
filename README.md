@@ -38,11 +38,11 @@ python scripts/generate_images.py
 ## 🗂 Project Structure
 ```
 akd_kd_gan/
+  __init__.py
+  config.py                 # AKDConfig: paths, hparams, seeds, run folders
+  data.py                   # CIFAR‑100 loader for test‑only split
+  losses.py                 # KL‑KD, diversity loss (utility)
   akd_kd_gan/
-    __init__.py
-    config.py                 # AKDConfig: paths, hparams, seeds, run folders
-    data.py                   # CIFAR‑100 loader for test‑only split
-    losses.py                 # KL‑KD, diversity loss (utility)
     models/
       generator.py            # GeneratorA (z→32×32)
       resnet_small.py         # BasicBlock/Bottleneck/ResNet/ResNet18_8x/_Small
