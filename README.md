@@ -11,21 +11,17 @@ This repository provides a production-ready, modular PyTorch implementation of *
 
 ---
 
-## ✨ Highlights
+## Highlights
 - **Teacher**: ResNet-34 (pretrained on CIFAR-100) distills logits to students without real training data.  
 - **Students**: (i) `ResNet18_8x_Small` (~20% teacher params), (ii) `ResNet18_8x` (~50% teacher params).  
 - **GeneratorA**: Lightweight GAN-style image sampler (latent `z→32×32`) to drive KD.
 
-## 🚀 Quickstart
+## Quickstart
 ```bash
 pip install -r requirements.txt
 # Optional: add teacher weights at ./teacher/best_resnet34_cifar100.pth
 python scripts/train_akd.py
 # Sample synthetic images
-pytho
-
-To sample images from the generator:
-```bash
 python scripts/generate_images.py
 ```
 
